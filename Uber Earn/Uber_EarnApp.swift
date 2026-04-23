@@ -1,11 +1,5 @@
-//
-//  Uber_EarnApp.swift
-//  Uber Earn
-//
-//  Created by Kacper Kondracki on 23/04/2026.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct Uber_EarnApp: App {
@@ -13,5 +7,6 @@ struct Uber_EarnApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [DayEntry.self, Expense.self, Goal.self])
     }
 }

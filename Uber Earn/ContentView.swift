@@ -1,21 +1,24 @@
-//
-//  ContentView.swift
-//  Uber Earn
-//
-//  Created by Kacper Kondracki on 23/04/2026.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedTab = 0
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $selectedTab) {
+            DashboardView()
+                .tabItem { Text("Przegląd") }
+                .tag(0)
+
+            ExpensesView()
+                .tabItem { Text("Wydatki") }
+                .tag(1)
+
+            GoalsView()
+                .tabItem { Text("Cele") }
+                .tag(2)
         }
-        .padding()
+        .tint(.accent)
+        .preferredColorScheme(.dark)
     }
 }
 
