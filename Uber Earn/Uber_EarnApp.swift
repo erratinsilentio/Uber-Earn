@@ -7,6 +7,6 @@ struct Uber_EarnApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [DayEntry.self, Expense.self, Goal.self])
+        .modelContainer(for: [DayEntry.self, Expense.self, Goal.self, WeekPlan.self])
     }
 }

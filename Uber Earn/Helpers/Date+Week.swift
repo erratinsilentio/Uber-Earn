@@ -73,3 +73,17 @@ func remainingDaysInWeek(from date: Date = .now) -> Int {
     let comps = Calendar.iso.dateComponents([.day], from: today, to: end)
     return max(0, (comps.day ?? 0) + 1)
 }
+
+/// Konwertuje datę do indeksu "planowego" dnia tygodnia: Pon=1 … Nd=7.
+/// `Calendar.weekday` zwraca Nd=1 … So=7 niezależnie od `firstWeekday`.
+func planWeekday(of date: Date) -> Int {
+    let w = Calendar.iso.component(.weekday, from: date)
+    return w == 1 ? 7 : w - 1
+}
+
+/// Liczba zaplanowanych dni pracy od dziś do końca tygodnia (wliczając dziś,
+/// jeśli jest w planie).
+func remainingPlannedDays(from date: Date, plan weekdays: [Int]) -> Int {
+    let today = planWeekday(of: date)
+    return weekdays.filter { $0 >= today }.count
+}

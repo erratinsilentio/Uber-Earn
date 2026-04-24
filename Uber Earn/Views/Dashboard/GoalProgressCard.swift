@@ -5,6 +5,8 @@ struct GoalProgressCard: View {
     let weekEarnings: Double
     let weekTrips: Int
     let today: Date
+    let plannedWeekdays: [Int]
+    var onToggleWeekday: (Int) -> Void
 
     private var currentValue: Double {
         switch goal.metricValue {
@@ -24,10 +26,7 @@ struct GoalProgressCard: View {
 
     private var remainingDays: Int {
         guard goal.isActive(on: today) else { return 0 }
-        let todayStart = today.startOfDay
-        let end = goal.weekEnd.startOfDay
-        let comps = Calendar.iso.dateComponents([.day], from: todayStart, to: end)
-        return max(0, (comps.day ?? 0) + 1)
+        return remainingPlannedDays(from: today, plan: plannedWeekdays)
     }
 
     private var dailyTarget: Double {
@@ -62,12 +61,43 @@ struct GoalProgressCard: View {
                         .foregroundStyle(Color.appMuted)
                 }
 
+                if goal.isActive(on: today) {
+                    weekdayPlanRow
+                }
+
                 if progress >= 1 {
                     doneBadge
                 } else if remainingDays == 0 {
                     missedBadge
                 } else {
                     paceBlock
+                }
+            }
+        }
+    }
+
+    private var weekdayPlanRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Dni pracy w tym tygodniu")
+                    .font(.appCaption(11, weight: .semibold))
+                    .foregroundStyle(Color.appMuted)
+                    .textCase(.uppercase)
+                Spacer()
+                Text("\(plannedWeekdays.count)/7")
+                    .font(.appCaption(11, weight: .semibold))
+                    .foregroundStyle(Color.appGold)
+            }
+            HStack(spacing: 6) {
+                ForEach(WeekPlan.allDays, id: \.self) { day in
+                    WeekdayPill(
+                        label: WeekPlan.label(for: day),
+                        selected: plannedWeekdays.contains(day),
+                        isToday: day == planWeekday(of: today),
+                        isPast: day < planWeekday(of: today)
+                    ) {
+                        onToggleWeekday(day)
+                    }
                 }
             }
         }
@@ -124,7 +154,7 @@ struct GoalProgressCard: View {
             HStack {
                 paceChip(
                     icon: "calendar",
-                    title: "Zostało",
+                    title: "Dni pracy",
                     value: "\(remainingDays) \(remainingDays == 1 ? "dzień" : "dni")"
                 )
                 paceChip(
@@ -191,6 +221,50 @@ struct GoalProgressCard: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color.white.opacity(0.06), lineWidth: 1)
         }
+    }
+}
+
+struct WeekdayPill: View {
+    let label: String
+    let selected: Bool
+    let isToday: Bool
+    let isPast: Bool
+    var onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Text(label)
+                .font(.appCaption(12, weight: .bold))
+                .foregroundStyle(foreground)
+                .frame(maxWidth: .infinity)
+                .frame(height: 34)
+                .background {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(background)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(strokeColor, lineWidth: isToday ? 1.5 : 1)
+                }
+                .opacity(isPast && !selected ? 0.45 : 1)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var foreground: Color {
+        if selected { return .black }
+        return isPast ? .appMuted : .appWhite
+    }
+
+    private var background: AnyShapeStyle {
+        if selected { return AnyShapeStyle(LinearGradient.goldSheen) }
+        return AnyShapeStyle(Color.white.opacity(0.05))
+    }
+
+    private var strokeColor: Color {
+        if isToday { return .appGold }
+        if selected { return .clear }
+        return Color.white.opacity(0.08)
     }
 }
 

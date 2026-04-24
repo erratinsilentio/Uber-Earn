@@ -6,6 +6,7 @@ struct DashboardView: View {
     @Query private var allEntries: [DayEntry]
     @Query private var allExpenses: [Expense]
     @Query private var allGoals: [Goal]
+    @Query private var allPlans: [WeekPlan]
 
     @State private var showEditToday = false
     @State private var showExpenses = false
@@ -44,6 +45,31 @@ struct DashboardView: View {
         allGoals.first { $0.isActive(on: today) }
     }
 
+    private var currentWeekPlan: WeekPlan? {
+        allPlans.first { $0.weekStart.isSameWeek(as: today) }
+    }
+
+    private var plannedWeekdays: [Int] {
+        currentWeekPlan?.weekdays ?? WeekPlan.allDays
+    }
+
+    private func toggleWeekday(_ day: Int) {
+        let plan: WeekPlan
+        if let existing = currentWeekPlan {
+            plan = existing
+        } else {
+            let new = WeekPlan(weekStart: today.weekStart, weekdays: WeekPlan.allDays)
+            modelContext.insert(new)
+            plan = new
+        }
+        if plan.weekdays.contains(day) {
+            plan.weekdays.removeAll { $0 == day }
+        } else {
+            plan.weekdays = (plan.weekdays + [day]).sorted()
+        }
+        try? modelContext.save()
+    }
+
     var body: some View {
         ZStack {
             AppBackdrop()
@@ -56,7 +82,9 @@ struct DashboardView: View {
                             goal: goal,
                             weekEarnings: weekEarnings,
                             weekTrips: weekTrips,
-                            today: today
+                            today: today,
+                            plannedWeekdays: plannedWeekdays,
+                            onToggleWeekday: toggleWeekday
                         )
                     } else {
                         emptyGoalCard
@@ -147,6 +175,6 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView()
-        .modelContainer(for: [DayEntry.self, Expense.self, Goal.self], inMemory: true)
+        .modelContainer(for: [DayEntry.self, Expense.self, Goal.self, WeekPlan.self], inMemory: true)
         .preferredColorScheme(.dark)
 }
