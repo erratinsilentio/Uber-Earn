@@ -1,5 +1,11 @@
 import Foundation
 
+let iso8601Calendar: Calendar = {
+    var c = Calendar(identifier: .iso8601)
+    c.locale = Locale(identifier: "pl_PL")
+    return c
+}()
+
 let plnFormatter: NumberFormatter = {
     let f = NumberFormatter()
     f.numberStyle = .decimal
@@ -13,30 +19,37 @@ let plnFormatter: NumberFormatter = {
 let shortDateFormatter: DateFormatter = {
     let f = DateFormatter()
     f.locale = Locale(identifier: "pl_PL")
-    f.dateFormat = "d MMM"  // e.g. "21 kw."
+    f.dateFormat = "d MMM"
+    return f
+}()
+
+let dayAbbrevFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "pl_PL")
+    f.dateFormat = "EEE"
+    return f
+}()
+
+private let weekDayFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "pl_PL")
+    f.dateFormat = "d"
+    return f
+}()
+
+private let monthNameFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "pl_PL")
+    f.dateFormat = "MMMM"
     return f
 }()
 
 func weekRangeString(for date: Date) -> String {
-    let calendar = Calendar(identifier: .iso8601)
     guard
-        let monday = calendar.dateInterval(of: .weekOfYear, for: date)?.start,
-        let sunday = calendar.date(byAdding: .day, value: 6, to: monday)
+        let monday = iso8601Calendar.dateInterval(of: .weekOfYear, for: date)?.start,
+        let sunday = iso8601Calendar.date(byAdding: .day, value: 6, to: monday)
     else { return "" }
-
-    let dayFormatter = DateFormatter()
-    dayFormatter.locale = Locale(identifier: "pl_PL")
-    dayFormatter.dateFormat = "d"
-
-    let monthFormatter = DateFormatter()
-    monthFormatter.locale = Locale(identifier: "pl_PL")
-    monthFormatter.dateFormat = "MMMM"
-
-    let startDay = dayFormatter.string(from: monday)
-    let endDay = dayFormatter.string(from: sunday)
-    let month = monthFormatter.string(from: sunday)  // use end of week for month name
-
-    return "\(startDay)–\(endDay) \(month)"
+    return "\(weekDayFormatter.string(from: monday))–\(weekDayFormatter.string(from: sunday)) \(monthNameFormatter.string(from: sunday))"
 }
 
 extension Double {
