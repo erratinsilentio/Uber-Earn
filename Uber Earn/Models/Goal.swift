@@ -1,19 +1,57 @@
-import SwiftData
 import Foundation
+import SwiftData
+
+enum GoalMetric: String, CaseIterable, Identifiable {
+    case earnings = "amount"
+    case trips = "trips"
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .earnings: "Zarobek"
+        case .trips: "Przejazdy"
+        }
+    }
+
+    var unit: String {
+        switch self {
+        case .earnings: "zł"
+        case .trips: "przejazdów"
+        }
+    }
+}
 
 @Model
-class Goal {
+final class Goal {
     var name: String
-    var type: String           // "weekly" | "monthly" | "oneTime"
-    var targetAmount: Double
-    var isArchived: Bool
+    var metric: String          // GoalMetric rawValue
+    var target: Double
+    var weekStart: Date         // Monday 00:00 of target week
     var createdAt: Date
 
-    init(name: String, type: String, targetAmount: Double, isArchived: Bool = false, createdAt: Date = .now) {
+    init(name: String, metric: GoalMetric, target: Double, weekStart: Date, createdAt: Date = .now) {
         self.name = name
-        self.type = type
-        self.targetAmount = targetAmount
-        self.isArchived = isArchived
+        self.metric = metric.rawValue
+        self.target = target
+        self.weekStart = Calendar.current.startOfDay(for: weekStart)
         self.createdAt = createdAt
+    }
+
+    var metricValue: GoalMetric {
+        GoalMetric(rawValue: metric) ?? .earnings
+    }
+
+    var weekEnd: Date {
+        Calendar.current.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
+    }
+
+    func isActive(on date: Date = .now) -> Bool {
+        let today = Calendar.current.startOfDay(for: date)
+        return today >= weekStart && today <= weekEnd
+    }
+
+    func isPast(on date: Date = .now) -> Bool {
+        Calendar.current.startOfDay(for: date) > weekEnd
     }
 }

@@ -1,12 +1,12 @@
 import SwiftUI
 
 // WIP placeholder. Full implementation pending.
-struct GoalsView: View {
+struct StatsView: View {
     var body: some View {
         ZStack {
             AppBackdrop()
             VStack(alignment: .leading, spacing: 8) {
-                Text("Cele")
+                Text("Statystyki")
                     .font(.appDisplay(32))
                     .foregroundStyle(Color.appWhite)
                 Text("W przygotowaniu")
