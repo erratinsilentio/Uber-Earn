@@ -1,13 +1,15 @@
 import SwiftUI
 
 extension Color {
-    static let appBackground = Color(hex: "0a0a0a")
-    static let cardBackground = Color(hex: "1a1a1a")
+    static let appBackground = Color(hex: "000000")
+    static let cardBackground = Color(hex: "2C2C2E")
     static let appText = Color(hex: "e5e5e5")
-    static let appGold = Color(hex: "d4af37")
-    static let appGoldSoft = Color(hex: "f0d06c")
+    // Primary accent — Uber green. Kept under the `appGold` name so existing
+    // views don't need to change.
+    static let appGold = Color(hex: "06C167")
+    static let appGoldSoft = Color(hex: "3CD98B")
     static let appWhite = Color(hex: "ffffff")
-    static let appDanger = Color(hex: "ff5a5f")
+    static let appDanger = Color(hex: "FF3B30")
     static let appMuted = Color(hex: "8a8a8a")
 
     init(hex: String) {
@@ -41,7 +43,7 @@ extension LinearGradient {
     )
 
     static let appBackdrop = LinearGradient(
-        colors: [Color(hex: "0a0a0a"), Color(hex: "121212")],
+        colors: [Color(hex: "000000"), Color(hex: "0c0c0c")],
         startPoint: .top,
         endPoint: .bottom
     )
